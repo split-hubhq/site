@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPLIT HUB — Automação RAD & Conformidade Fiscal</title>
+  <meta name="description" content="Automatize o recolhimento de CBS e IBS nos moldes da nova regulação RAD. Sem intervenção manual, com rastreabilidade completa e integração nativa com seu ERP." />
+  <style>
+    /* ── Reset & Base ───────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:      #43A855;
+      --blue-dark: #2D8040;
+      --blue-light:#EBF7ED;
+      --green:     #2D8040;
+      --green-light:#DFF2E3;
+      --gray-50:   #F8F9FC;
+      --gray-100:  #F0F2F7;
+      --gray-200:  #DDE1EA;
+      --gray-400:  #97A0B3;
+      --gray-600:  #5A667A;
+      --gray-800:  #1F2638;
+      --white:     #FFFFFF;
+      --red-light: #FFF0F0;
+      --red:       #C0392B;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      color: var(--gray-800);
+      background: var(--white);
+      line-height: 1.6;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    ul { list-style: none; }
+
+    /* ── Typography ─────────────────────────────────── */
+    h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; line-height: 1.2; }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; line-height: 1.25; }
+    h3 { font-size: 1.15rem; font-weight: 600; }
+    p  { color: var(--gray-600); font-size: 1rem; }
+
+    /* ── Layout Helpers ──────────────────────────────── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+    .section    { padding: 5rem 0; }
+    .section--gray { background: var(--gray-50); }
+    .section--blue { background: var(--blue-light); }
+
+    .tag {
+      display: inline-block;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .3rem .8rem;
+      border-radius: 100px;
+      margin-bottom: 1rem;
+    }
+    .tag--green { background: var(--green-light); color: var(--green); }
+
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .section-header p { max-width: 640px; margin: .75rem auto 0; }
+
+    /* ── Buttons ─────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .8rem 1.75rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: var(--white);
+    }
+    .btn-primary:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(67,168,85,.3); }
+    .btn-outline {
+      background: transparent;
+      color: var(--blue);
+      border: 2px solid var(--blue);
+    }
+    .btn-outline:hover { background: var(--blue-light); }
+    .btn-white {
+      background: var(--white);
+      color: var(--blue);
+    }
+    .btn-white:hover { background: var(--gray-100); transform: translateY(-1px); }
+
+    /* ── Navbar ──────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 1rem 0;
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+    }
+    .nav-logo img {
+      height: 32px;
+      width: auto;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      font-size: .9rem;
+      color: var(--gray-600);
+    }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-cta { display: flex; gap: .75rem; }
+
+    /* ── Hero ────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(160deg, #EEF7EF 0%, var(--white) 60%);
+      padding: 5.5rem 0 4.5rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .hero .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: .35rem 1rem;
+      border-radius: 100px;
+      margin-bottom: 1.25rem;
+    }
+    .hero-eyebrow span { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; display:inline-block; }
+    .hero h1 { margin-bottom: 1.25rem; color: var(--gray-800); }
+    .hero h1 em { font-style: normal; color: var(--blue); }
+    .hero > .container > div > p { font-size: 1.1rem; margin-bottom: 2rem; max-width: 500px; }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: var(--green-light);
+      color: var(--green);
+      font-size: .8rem;
+      font-weight: 600;
+      padding: .4rem .9rem;
+      border-radius: 100px;
+      margin-top: 1.5rem;
+    }
+    .hero-badge::before { content: "✓"; }
+
+    /* ── Hero Visual ─────────────────────────────────── */
+    .hero-visual {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.08);
+      padding: 1.5rem;
+      overflow: hidden;
+    }
+    .visual-title {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+    .flow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: .85rem 0;
+    }
+    .flow-step:not(:last-child) {
+      border-bottom: 1px dashed var(--gray-200);
+    }
+    .step-num {
+      width: 28px; height: 28px; min-width: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem;
+      font-weight: 700;
+    }
+    .step-num.blue  { background: var(--blue-light); color: var(--blue); }
+    .step-num.green { background: var(--green-light); color: var(--green); }
+    .step-num.gray  { background: var(--gray-100); color: var(--gray-600); }
+    .step-text { font-size: .85rem; }
+    .step-text strong { display: block; color: var(--gray-800); font-weight: 600; margin-bottom: .1rem; }
+    .step-text span { color: var(--gray-400); font-size: .78rem; }
+    .step-status {
+      margin-left: auto;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: .2rem .6rem;
+      border-radius: 100px;
+    }
+    .status-ok   { background: var(--green-light); color: var(--green); }
+    .status-proc { background: var(--blue-light);  color: var(--blue); }
+
+    /* ── Problem ─────────────────────────────────────── */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 2rem;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .problem-card {
+      border-radius: 12px;
+      padding: 2rem;
+      border: 1px solid;
+    }
+    .problem-card.before {
+      background: var(--red-light);
+      border-color: #FCCCC8;
+    }
+    .problem-card.after {
+      background: var(--green-light);
+      border-color: #B7E8D8;
+    }
+    .problem-card .card-tag {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    .problem-card.before .card-tag { color: var(--red); }
+    .problem-card.after  .card-tag { color: var(--green); }
+    .problem-card h3 { font-size: 1rem; color: var(--gray-800); margin-bottom: .75rem; }
+    .problem-card ul li {
+      font-size: .875rem;
+      color: var(--gray-600);
+      padding: .3rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .problem-card.before ul li::before { content: "✗"; position: absolute; left: 0; color: var(--red); font-weight: 700; }
+    .problem-card.after  ul li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    .arrow-divider {
+      font-size: 2rem;
+      color: var(--blue);
+      text-align: center;
+    }
+    .problem-note {
+      text-align: center;
+      margin-top: 2.5rem;
+      font-size: .9rem;
+      color: var(--gray-600);
+      background: var(--blue-light);
+      border: 1px solid #B8DFC0;
+      border-radius: 10px;
+      padding: 1.1rem 1.5rem;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .problem-note strong { color: var(--blue); }
+
+    /* ── Features ────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.75rem;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .feature-card:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,.07);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      width: 44px; height: 44px;
+      background: var(--blue-light);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .feature-card h3 { margin-bottom: .5rem; }
+    .feature-card p { font-size: .875rem; }
+
+    /* ── How it Works ────────────────────────────────── */
+    .steps-timeline {
+      position: relative;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .steps-timeline::before {
+      content: '';
+      position: absolute;
+      left: 27px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--gray-200);
+    }
+    .timeline-step {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .timeline-num {
+      width: 56px; height: 56px; min-width: 56px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: var(--white);
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 0 4px var(--white), 0 0 0 6px var(--blue-light);
+    }
+    .timeline-num.green-step { background: var(--green); box-shadow: 0 0 0 4px var(--white), 0 0 0 6px var(--green-light); }
+    .timeline-body { padding-top: .75rem; }
+    .timeline-body h3 { color: var(--gray-800); margin-bottom: .3rem; }
+    .timeline-body p  { font-size: .875rem; }
+    .timeline-tag {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--blue);
+      background: var(--blue-light);
+      padding: .15rem .6rem;
+      border-radius: 100px;
+      margin-bottom: .4rem;
+    }
+    .timeline-tag.g { color: var(--green); background: var(--green-light); }
+
+    /* ── ERP Integrations ────────────────────────────── */
+    .erp-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      max-width: 860px;
+      margin: 0 auto 2.5rem;
+    }
+    .erp-chip {
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 1rem .75rem;
+      text-align: center;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      background: var(--white);
+      transition: all .2s;
+    }
+    .erp-chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+    .erp-chip .erp-icon { font-size: 1.5rem; margin-bottom: .4rem; }
+    .erp-note {
+      text-align: center;
+      font-size: .875rem;
+      color: var(--gray-400);
+    }
+
+    /* ── Compliance strip ────────────────────────────── */
+    .compliance-strip {
+      background: var(--gray-800);
+      padding: 2.5rem 0;
+    }
+    .compliance-strip .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .compliance-item {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      color: var(--gray-100);
+      font-size: .875rem;
+    }
+    .compliance-item .ci-icon {
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,.1);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .compliance-item strong { color: var(--white); }
+
+    /* ── Split Payment Section ───────────────────────── */
+    .split-card {
+      background: linear-gradient(135deg, #F2F9F3 0%, #EAF5EC 100%);
+      border: 1px solid var(--gray-200);
+      border-radius: 16px;
+      padding: 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .split-card h2 { margin-bottom: .75rem; }
+    .split-card p  { margin-bottom: 1.5rem; }
+    .split-features { display: flex; flex-direction: column; gap: .75rem; }
+    .split-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      font-size: .9rem;
+      color: var(--gray-600);
+    }
+    .split-feature .sf-icon {
+      width: 28px; height: 28px; min-width: 28px;
+      background: var(--green-light);
+      color: var(--green);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem;
+    }
+    .split-visual {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,.06);
+    }
+    .recon-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: .6rem 0;
+      font-size: .82rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .recon-row:last-child { border-bottom: none; }
+    .recon-label { color: var(--gray-600); }
+    .recon-badge {
+      font-size: .7rem;
+      font-weight: 700;
+      padding: .2rem .6rem;
+      border-radius: 100px;
+    }
+    .rb-ok     { background: var(--green-light); color: var(--green); }
+    .rb-warn   { background: #FFF8E6; color: #B07A00; }
+    .rb-error  { background: var(--red-light); color: var(--red); }
+    .recon-title {
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+
+    /* ── Lead Form ───────────────────────────────────── */
+    .lead-section {
+      background: var(--blue);
+      padding: 5rem 0;
+    }
+    .lead-section .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .lead-copy h2 { color: var(--white); margin-bottom: 1rem; }
+    .lead-copy p  { color: rgba(255,255,255,.75); margin-bottom: 2rem; font-size: 1.05rem; }
+    .lead-perks { display: flex; flex-direction: column; gap: .6rem; }
+    .lead-perk {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      color: rgba(255,255,255,.85);
+      font-size: .9rem;
+    }
+    .lead-perk::before { content: "✓"; color: #7FFFC4; font-weight: 700; font-size: 1rem; }
+    .lead-form-wrap {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 12px 48px rgba(0,0,0,.15);
+    }
+    .lead-form-wrap h3 { margin-bottom: .5rem; color: var(--gray-800); }
+    .lead-form-wrap > p { font-size: .875rem; margin-bottom: 1.5rem; color: var(--gray-400); }
+    .form-row { margin-bottom: 1rem; }
+    .form-row label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      margin-bottom: .35rem;
+    }
+    .form-row input,
+    .form-row select {
+      width: 100%;
+      padding: .7rem 1rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 8px;
+      font-size: .9rem;
+      font-family: var(--font);
+      color: var(--gray-800);
+      outline: none;
+      transition: border .2s;
+      background: var(--white);
+    }
+    .form-row input:focus,
+    .form-row select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(67,168,85,.12); }
+    .form-row input::placeholder { color: var(--gray-400); }
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-submit {
+      width: 100%;
+      padding: .9rem;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: .5rem;
+      transition: background .2s, transform .2s;
+    }
+    .form-submit:hover { background: var(--blue-dark); transform: translateY(-1px); }
+    .form-privacy {
+      text-align: center;
+      font-size: .72rem;
+      color: var(--gray-400);
+      margin-top: .75rem;
+    }
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .form-success .success-icon {
+      font-size: 2.5rem;
+      margin-bottom: .75rem;
+    }
+    .form-success h3 { color: var(--green); margin-bottom: .5rem; }
+    .form-success p  { font-size: .875rem; }
+
+    /* ── Footer ──────────────────────────────────────── */
+    footer {
+      background: var(--gray-800);
+      padding: 3rem 0 2rem;
+    }
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      margin-bottom: 1.5rem;
+    }
+    .footer-brand .nav-logo { }
+    .footer-brand p { font-size: .875rem; color: var(--gray-400); max-width: 280px; }
+    .footer-col h4 { color: var(--white); font-size: .85rem; margin-bottom: 1rem; }
+    .footer-col ul li { margin-bottom: .5rem; }
+    .footer-col ul li a { font-size: .85rem; color: var(--gray-400); }
+    .footer-col ul li a:hover { color: var(--white); }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .8rem;
+      color: var(--gray-400);
+    }
+    .footer-reg {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(255,255,255,.06);
+      border-radius: 6px;
+      padding: .3rem .7rem;
+      font-size: .75rem;
+      color: var(--gray-400);
+    }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero .container,
+      .split-card,
+      .lead-section .container,
+      .footer-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+      .hero-visual { order: -1; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .arrow-divider { transform: rotate(90deg); font-size: 1.5rem; margin: .5rem auto; width: 2rem; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .erp-grid { grid-template-columns: repeat(3, 1fr); }
+      .nav-links { display: none; }
+      .form-grid-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 580px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .erp-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+      .footer-bottom { flex-direction: column; gap: .75rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ───────────────────────────────────────── -->
+<nav>
+  <div class="container">
+    <a href="#" class="nav-logo">
+      <img src="./assets/logo.png" alt="SPLIT HUB" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="#problema">O Problema</a></li>
+      <li><a href="#solucao">Solução RAD</a></li>
+      <li><a href="#fluxo">Como Funciona</a></li>
+      <li><a href="#integracoes">Integrações</a></li>
+      <li><a href="#split">Split Payment</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#contato" class="btn btn-outline" style="padding:.6rem 1.25rem;font-size:.9rem;">Falar com especialista</a>
+      <a href="#contato" class="btn btn-primary" style="padding:.6rem 1.25rem;font-size:.9rem;">Solicitar demo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────── -->
+<section class="hero" id="inicio">
+  <div class="container">
+    <div>
+      <div class="hero-eyebrow">
+        <span></span>
+        RAD — Lei Complementar 214/2025
+      </div>
+      <h1>
+        Automação <em>RAD</em> para<br />
+        recolhimento de CBS e IBS<br />
+        sem intervenção manual
+      </h1>
+      <p>
+        A nova regulação RAD inverteu 30 anos de prática fiscal: agora o adquirente recolhe CBS e IBS <strong>antes</strong> de pagar o fornecedor. O SPLIT HUB orquestra todo esse ciclo automaticamente — do cálculo ao recibo fiscal.
+      </p>
+      <div class="hero-cta">
+        <a href="#contato" class="btn btn-primary">Solicitar demonstração →</a>
+        <a href="#fluxo" class="btn btn-outline">Ver como funciona</a>
+      </div>
+      <div class="hero-badge">Conformidade RAD automática, do início ao fim</div>
+    </div>
+
+    <!-- Mini dashboard visual -->
+    <div class="hero-visual">
+      <div class="visual-title">RAD Payout — Ciclo em execução</div>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-num blue">1</div>
+          <div class="step-text">
+            <strong>Ordem de pagamento recebida</strong>
+            <span>ERP / Webhook · Nota fiscal validada</span>
+          </div>
+          <span class="step-status status-ok">✓ OK</span>
+        </div>
+        <div class="flow-step">
+          <div class="step-num blue">2</div>
+          <div class="step-text">
+            <strong>Cálculo CBS + IBS</strong>
+            <span>Motor de regras fiscal · NBC/IBS</span>
+          </div>
+          <span class="step-status status-ok">✓ OK</span>
+        </div>
+        <div class="flow-step">
+          <div class="step-num blue">3</div>
+          <div class="step-text">
+            <strong>Recolhimento à Receita Federal</strong>
+            <span>PIX / DARF · Autenticação tributária</span>
+          </div>
+          <span class="step-status status-ok">✓ OK</span>
+        </div>
+        <div class="flow-step">
+          <div class="step-num green">4</div>
+          <div class="step-text">
+            <strong>Recibo fiscal capturado</strong>
+            <span>DARF / GRU armazenado · auditável</span>
+          </div>
+          <span class="step-status status-ok">✓ OK</span>
+        </div>
+        <div class="flow-step">
+          <div class="step-num green">5</div>
+          <div class="step-text">
+            <strong>Pagamento líquido ao fornecedor</strong>
+            <span>TED / PIX · valor deduzido dos tributos</span>
+          </div>
+          <span class="step-status status-proc">⟳ Processando</span>
+        </div>
+        <div class="flow-step">
+          <div class="step-num gray">6</div>
+          <div class="step-text">
+            <strong>Notificação ao ERP origem</strong>
+            <span>Webhook · E-mail · WhatsApp</span>
+          </div>
+          <span class="step-status" style="background:var(--gray-100);color:var(--gray-400);">Aguardando</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── O Problema ────────────────────────────────────── -->
+<section class="section" id="problema">
+  <div class="container">
+    <div class="section-header">
+      <span class="tag">O Cenário Regulatório</span>
+      <h2>A inversão tributária que muda<br />tudo no fluxo de caixa</h2>
+      <p>
+        A Lei Complementar 214/2025 transferiu a responsabilidade pelo recolhimento de CBS e IBS para o adquirente. O que antes era uma obrigação do fornecedor em até 30 dias, agora deve acontecer no momento da compra.
+      </p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card before">
+        <div class="card-tag">❌ Modelo anterior</div>
+        <h3>Fornecedor recolhia os tributos</h3>
+        <ul>
+          <li>Empresa A paga Fornecedor B integralmente</li>
+          <li>Fornecedor tinha até 30 dias para pagar tributos</li>
+          <li>Processo totalmente manual no lado fiscal</li>
+          <li>Risco de inadimplência tributária do fornecedor</li>
+          <li>Ausência de rastreabilidade em tempo real</li>
+        </ul>
+      </div>
+      <div class="arrow-divider">→</div>
+      <div class="problem-card after">
+        <div class="card-tag">✅ Modelo RAD (atual)</div>
+        <h3>Adquirente recolhe na origem</h3>
+        <ul>
+          <li>Empresa A recolhe CBS/IBS imediatamente</li>
+          <li>Fornecedor recebe apenas o valor líquido</li>
+          <li>Automação é essencial — centenas de transações/mês</li>
+          <li>Conformidade garantida na origem da operação</li>
+          <li>Rastreabilidade completa para auditoria fiscal</li>
+        </ul>
+      </div>
+    </div>
+    <p class="problem-note">
+      <strong>O desafio operacional:</strong> Empresas de médio e grande porte processam centenas de ordens de pagamento por mês. Sem automação, o cumprimento do RAD exigiria um time fiscal dedicado para cada transação — tornando a operação inviável.
+    </p>
+  </div>
+</section>
+
+<!-- ── Solução / Features ─────────────────────────────── -->
+<section class="section section--gray" id="solucao">
+  <div class="container">
+    <div class="section-header">
+      <span class="tag">RAD Payout Automation</span>
+      <h2>Tudo que você precisa para operar<br />em conformidade com o RAD</h2>
+      <p>
+        Da ingestão da ordem de pagamento ao recibo fiscal arquivado, o SPLIT HUB automatiza cada etapa do ciclo RAD sem intervenção humana.
+      </p>
+    </div>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">🧮</div>
+        <h3>Motor de Cálculo Fiscal</h3>
+        <p>Regras configuráveis para CBS, IBS, ISS, PIS, COFINS e IR-Fonte. Adapta-se a cada tipo de operação, CNAE e perfil de fornecedor sem necessidade de código.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Orquestração do Ciclo RAD</h3>
+        <p>Fluxo completo em até 60 segundos: cálculo → reserva de saldo → recolhimento à autoridade tributária → captura do recibo → pagamento ao fornecedor.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🧾</div>
+        <h3>Captura de Recibos Fiscais</h3>
+        <p>DARF, GRU e chaves PIX de comprovante armazenados automaticamente com indexação por NF-e, CNPJ e período. Pronto para fiscalização.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📒</div>
+        <h3>Ledger de Transações</h3>
+        <p>Registro imutável de cada operação financeira com rastreabilidade completa: estado, timestamps, valores bruto/líquido e comprovantes vinculados.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Notificações Multicanal</h3>
+        <p>Confirmações de pagamento por Webhook, E-mail e WhatsApp para o ERP de origem e equipe fiscal, com templates configuráveis por evento.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🏢</div>
+        <h3>Multi-empresa (Multi-tenant)</h3>
+        <p>Gestão centralizada de múltiplos CNPJs com isolamento rigoroso de dados por empresa. Ideal para grupos econômicos e contabilidades.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Como Funciona ─────────────────────────────────── -->
+<section class="section" id="fluxo">
+  <div class="container">
+    <div class="section-header">
+      <span class="tag">Fluxo Operacional</span>
+      <h2>Do recebimento da NF-e ao<br />pagamento líquido do fornecedor</h2>
+      <p>
+        Baseado em padrão Saga com transações compensatórias: cada etapa é atômica, idempotente e auditável. Sem risco de duplo pagamento.
+      </p>
+    </div>
+    <div class="steps-timeline">
+
+      <div class="timeline-step">
+        <div class="timeline-num">1</div>
+        <div class="timeline-body">
+          <span class="timeline-tag">Ingestão</span>
+          <h3>Recebimento da Ordem de Pagamento</h3>
+          <p>O ERP envia a ordem via API REST, webhook ou upload SFTP. O sistema valida a NF-e, o CNPJ do fornecedor e verifica a regra tributária aplicável antes de prosseguir.</p>
+        </div>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-num">2</div>
+        <div class="timeline-body">
+          <span class="timeline-tag">Cálculo</span>
+          <h3>Apuração de CBS e IBS</h3>
+          <p>O motor fiscal calcula os tributos devidos com base no tipo de operação, CNAE e perfil do fornecedor. Resultado registrado no ledger antes de qualquer movimentação financeira.</p>
+        </div>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-num">3</div>
+        <div class="timeline-body">
+          <span class="timeline-tag">Recolhimento</span>
+          <h3>Pagamento à Autoridade Tributária</h3>
+          <p>Emissão e liquidação do DARF / GRU via PIX ou TED ao Tesouro Nacional. Operação idempotente — chave única por transação garante que nenhum tributo seja recolhido duas vezes.</p>
+        </div>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-num green-step">4</div>
+        <div class="timeline-body">
+          <span class="timeline-tag g">Comprovação</span>
+          <h3>Captura e Armazenamento do Recibo</h3>
+          <p>O comprovante do recolhimento (DARF autenticado / chave PIX) é capturado automaticamente, vinculado à NF-e e armazenado com criptografia AES-256 para fins de auditoria.</p>
+        </div>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-num green-step">5</div>
+        <div class="timeline-body">
+          <span class="timeline-tag g">Pagamento</span>
+          <h3>Repasse Líquido ao Fornecedor</h3>
+          <p>Com o recibo fiscal em mãos, o valor líquido (total deduzido dos tributos) é transferido ao fornecedor via PIX ou TED dentro do mesmo ciclo operacional.</p>
+        </div>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-num green-step">6</div>
+        <div class="timeline-body">
+          <span class="timeline-tag g">Encerramento</span>
+          <h3>Confirmação ao ERP e Notificação</h3>
+          <p>O ERP de origem recebe o retorno completo da operação via webhook com todos os comprovantes. A equipe fiscal é notificada por e-mail ou WhatsApp. Ciclo encerrado.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── ERP Integrations ───────────────────────────────── -->
+<section class="section section--gray" id="integracoes">
+  <div class="container">
+    <div class="section-header">
+      <span class="tag">Integrações</span>
+      <h2>Conecta com o ERP que<br />você já utiliza</h2>
+      <p>
+        Conectores nativos para os principais ERPs do mercado brasileiro, com mapeamento de campos por empresa e suporte a envio em lote via SFTP.
+      </p>
+    </div>
+    <div class="erp-grid">
+      <div class="erp-chip">
+        <div class="erp-icon">🟦</div>
+        SAP S/4HANA
+      </div>
+      <div class="erp-chip">
+        <div class="erp-icon">🔴</div>
+        Oracle Fusion
+      </div>
+      <div class="erp-chip">
+        <div class="erp-icon">🟩</div>
+        TOTVS Protheus
+      </div>
+      <div class="erp-chip">
+        <div class="erp-icon">🔌</div>
+        REST API
+      </div>
+      <div class="erp-chip">
+        <div class="erp-icon">📁</div>
+        SFTP / Arquivo
+      </div>
+    </div>
+    <p class="erp-note">
+      Não encontrou seu ERP? Nossa API genérica aceita qualquer sistema com suporte a REST ou troca de arquivos.
+    </p>
+  </div>
+</section>
+
+<!-- ── Compliance Strip ──────────────────────────────── -->
+<div class="compliance-strip">
+  <div class="container">
+    <div class="compliance-item">
+      <div class="ci-icon">🔒</div>
+      <div><strong>AES-256</strong> em repouso · TLS 1.3 em trânsito</div>
+    </div>
+    <div class="compliance-item">
+      <div class="ci-icon">📋</div>
+      <div><strong>LGPD</strong> compliance nativo</div>
+    </div>
+    <div class="compliance-item">
+      <div class="ci-icon">🏦</div>
+      <div><strong>BCB Open Finance</strong> certificado</div>
+    </div>
+    <div class="compliance-item">
+      <div class="ci-icon">⚡</div>
+      <div><strong>&lt; 500ms</strong> P99 para leituras</div>
+    </div>
+    <div class="compliance-item">
+      <div class="ci-icon">🛡️</div>
+      <div><strong>99,9%</strong> SLA no caminho de pagamento</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Split Payment Section ─────────────────────────── -->
+<section class="section" id="split">
+  <div class="container">
+    <div class="split-card">
+      <div>
+        <span class="tag tag--green">Em breve · Split Payment</span>
+        <h2>Reconciliação Fiscal do<br />Split Payment</h2>
+        <p>
+          Quando o pagamento é dividido entre autoridade tributária e fornecedor, reconciliar cada centavo em escala é crítico. Nossa segunda solução fecha esse ciclo com rastreabilidade total.
+        </p>
+        <div class="split-features">
+          <div class="split-feature">
+            <div class="sf-icon">✓</div>
+            <span>Confronto de transações da plataforma com extratos bancários e registros fiscais</span>
+          </div>
+          <div class="split-feature">
+            <div class="sf-icon">🔍</div>
+            <span>Detecção de divergências, itens de conciliação e lançamentos em falta</span>
+          </div>
+          <div class="split-feature">
+            <div class="sf-icon">📊</div>
+            <span>Relatórios de conciliação prontos para auditoria e exportação SPED</span>
+          </div>
+          <div class="split-feature">
+            <div class="sf-icon">🏛️</div>
+            <span>Verificação de tributos direcionados às autoridades corretas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini reconciliation preview -->
+      <div class="split-visual">
+        <div class="recon-title">Painel de Conciliação · Resumo</div>
+        <div class="recon-row">
+          <span class="recon-label">CBS recolhida — Receita Federal</span>
+          <span class="recon-badge rb-ok">Conciliado</span>
+        </div>
+        <div class="recon-row">
+          <span class="recon-label">IBS recolhido — Comitê Gestor</span>
+          <span class="recon-badge rb-ok">Conciliado</span>
+        </div>
+        <div class="recon-row">
+          <span class="recon-label">Pagamento Fornecedor A — TED</span>
+          <span class="recon-badge rb-ok">Conciliado</span>
+        </div>
+        <div class="recon-row">
+          <span class="recon-label">Pagamento Fornecedor B — PIX</span>
+          <span class="recon-badge rb-warn">Pendente</span>
+        </div>
+        <div class="recon-row">
+          <span class="recon-label">Diferença de valor — NF-e 9821</span>
+          <span class="recon-badge rb-error">Divergência</span>
+        </div>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray-100);">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;">
+            <span style="color:var(--gray-400);">Taxa de conciliação</span>
+            <strong style="color:var(--green);">96,8%</strong>
+          </div>
+          <div style="background:var(--gray-100);border-radius:100px;height:6px;margin-top:.4rem;overflow:hidden;">
+            <div style="background:var(--green);width:96.8%;height:100%;border-radius:100px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Lead Form ─────────────────────────────────────── -->
+<section class="lead-section" id="contato">
+  <div class="container">
+    <div class="lead-copy">
+      <h2>Pronto para automatizar seu recolhimento RAD?</h2>
+      <p>
+        Fale com um especialista e entenda como o SPLIT HUB pode eliminar o risco fiscal da sua operação — sem mudar seu ERP.
+      </p>
+      <div class="lead-perks">
+        <div class="lead-perk">Demo personalizada com o seu fluxo de pagamentos</div>
+        <div class="lead-perk">Análise do impacto do RAD na sua operação atual</div>
+        <div class="lead-perk">Estimativa de automação e redução de esforço manual</div>
+        <div class="lead-perk">Sem compromisso — apenas uma conversa técnica</div>
+      </div>
+    </div>
+
+    <div class="lead-form-wrap">
+      <div id="form-container">
+        <h3>Solicite uma demonstração</h3>
+        <p>Responderemos em até 1 dia útil</p>
+        <form id="lead-form" onsubmit="handleSubmit(event)">
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label for="nome">Nome completo *</label>
+              <input type="text" id="nome" placeholder="João Silva" required />
+            </div>
+            <div class="form-row">
+              <label for="empresa">Empresa *</label>
+              <input type="text" id="empresa" placeholder="Razão Social" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="email">E-mail corporativo *</label>
+            <input type="email" id="email" placeholder="joao@empresa.com.br" required />
+          </div>
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label for="cargo">Cargo</label>
+              <input type="text" id="cargo" placeholder="Controller, CFO, Gerente..." />
+            </div>
+            <div class="form-row">
+              <label for="porte">Porte da empresa</label>
+              <select id="porte">
+                <option value="">Selecione</option>
+                <option>Médio porte (50–500 func.)</option>
+                <option>Grande porte (500+ func.)</option>
+                <option>Grupo econômico / Holding</option>
+                <option>Contabilidade / BPO fiscal</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="volume">Volume estimado de NFs/mês</label>
+            <select id="volume">
+              <option value="">Selecione</option>
+              <option>Até 100 NFs/mês</option>
+              <option>101 – 500 NFs/mês</option>
+              <option>501 – 2.000 NFs/mês</option>
+              <option>Acima de 2.000 NFs/mês</option>
+            </select>
+          </div>
+          <button type="submit" class="form-submit">Solicitar demonstração gratuita →</button>
+          <p class="form-privacy">Seus dados estão protegidos pela LGPD. Não fazemos spam.</p>
+        </form>
+      </div>
+      <div class="form-success" id="form-success">
+        <div class="success-icon">✅</div>
+        <h3>Solicitação recebida!</h3>
+        <p>Nossa equipe entrará em contato em até <strong>1 dia útil</strong> para agendar sua demonstração personalizada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="nav-logo" style="margin-bottom:.75rem;">
+          <img src="assets/logo.png" alt="SPLIT HUB" style="height:28px;filter:brightness(0) invert(1);" />
+        </div>
+        <p>Infraestrutura operacional para a nova era do sistema tributário brasileiro. Automação RAD e conciliação de Split Payment.</p>
+        <br/>
+        <span class="footer-reg">🇧🇷 Lei Complementar 214/2025 · RAD</span>
+      </div>
+      <div class="footer-col">
+        <h4>Produto</h4>
+        <ul>
+          <li><a href="#solucao">RAD Payout Automation</a></li>
+          <li><a href="#fluxo">Como Funciona</a></li>
+          <li><a href="#integracoes">Integrações ERP</a></li>
+          <li><a href="#split">Split Payment</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Empresa</h4>
+        <ul>
+          <li><a href="#contato">Falar com especialista</a></li>
+          <li><a href="#contato">Solicitar demo</a></li>
+          <li><a href="#">Política de Privacidade</a></li>
+          <li><a href="#">Termos de Uso</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 SPLIT HUB. Todos os direitos reservados.</span>
+      <span>Feito no Brasil 🇧🇷 · LGPD Compliant</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function handleSubmit(e) {
+    e.preventDefault();
+    document.getElementById('form-container').style.display = 'none';
+    const success = document.getElementById('form-success');
+    success.style.display = 'block';
+  }
+
+  // Smooth active nav link highlight
+  const sections = document.querySelectorAll('section[id], div[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.style.color = link.getAttribute('href') === '#' + entry.target.id
+            ? 'var(--blue)' : '';
+        });
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
