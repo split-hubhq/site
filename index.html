@@ -384,9 +384,14 @@
       color: var(--gray-600);
       background: var(--white);
       transition: all .2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .erp-chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
     .erp-chip .erp-icon { font-size: 1.5rem; margin-bottom: .4rem; }
+    .erp-chip .erp-logo { height: 2rem; object-fit: contain; }
     .erp-note {
       text-align: center;
       font-size: .875rem;
@@ -908,16 +913,13 @@
     </div>
     <div class="erp-grid">
       <div class="erp-chip">
-        <div class="erp-icon">🟦</div>
-        SAP S/4HANA
+        <img src="./assets/erps/sap.svg" alt="SAP" class="erp-logo">
       </div>
       <div class="erp-chip">
-        <div class="erp-icon">🔴</div>
-        Oracle Fusion
+        <img src="./assets/erps/oracle.png" alt="Oracle Fusion" class="erp-logo">
       </div>
       <div class="erp-chip">
-        <div class="erp-icon">🟩</div>
-        TOTVS Protheus
+        <img src="./assets/erps/totvs.jpg" alt="TOTVS Protheus" class="erp-logo">
       </div>
       <div class="erp-chip">
         <div class="erp-icon">🔌</div>
