@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SplitHub — Positivo Tecnologia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070D1A;--sidebar:#0D1626;--card:#111D2E;--border:#1E2F45;
+  --teal:#00C9A7;--blue:#3B82F6;--amber:#F59E0B;--red:#F43F5E;--green:#22C55E;
+  --txt1:#E2EBF5;--txt2:#6D8AA8;--txt3:#3A556F;
+}
+html,body{height:100%;background:var(--bg);font-family:'DM Sans','Segoe UI',sans-serif;color:var(--txt1)}
+body{display:flex;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+#sidebar{width:220px;min-width:220px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:sticky;top:0}
+#main{flex:1;overflow-y:auto;background:var(--bg)}
+.view{display:none;padding:28px}
+.view.active{display:block}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-icon{width:30px;height:30px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#000;letter-spacing:-.03em;flex-shrink:0}
+.sb-logo p{margin:0}
+.sb-name{font-size:14px;font-weight:700;color:var(--txt1)}
+.sb-prod{font-size:10px;color:var(--txt3)}
+.sb-co{padding:10px 12px;border-bottom:1px solid var(--border)}
+.sb-co-box{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 12px;cursor:pointer}
+.sb-co-box .lbl{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.sb-co-box .val{font-size:12px;font-weight:600;color:var(--txt1)}
+.sb-co-box .sub{font-size:10px;color:var(--txt3)}
+nav{padding:10px;flex:1;overflow-y:auto}
+.nav-btn{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:transparent;border:none;border-left:2px solid transparent;border-radius:6px;color:var(--txt2);font-size:13px;font-family:inherit;padding:9px 12px;cursor:pointer;margin-bottom:2px}
+.nav-btn:hover{color:var(--txt1)}
+.nav-btn.active{background:rgba(0,201,167,.12);border-left-color:var(--teal);border-radius:0 6px 6px 0;color:var(--teal);font-weight:600}
+.nav-icon{font-size:12px;opacity:.45}
+.nav-btn.active .nav-icon{opacity:1}
+.sb-foot{padding:12px 14px 18px;border-top:1px solid var(--border)}
+.st-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:11px;color:var(--txt2)}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:9px;margin-top:12px}
+.avatar{width:30px;height:30px;border-radius:50%;background:rgba(0,201,167,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--teal);flex-shrink:0}
+.u-name{font-size:12px;color:var(--txt1)}
+.u-role{font-size:10px;color:var(--txt3)}
+.pg-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.pg-title{font-size:22px;font-weight:700;color:var(--txt1);margin-bottom:4px}
+.pg-sub{font-size:13px;color:var(--txt2)}
+.hdr-act{display:flex;gap:8px}
+.btn{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--txt2);font-size:12px;font-family:inherit;padding:7px 14px;cursor:pointer}
+.btn-t{background:rgba(0,201,167,.15);border-color:rgba(0,201,167,.4);color:var(--teal);font-weight:600}
+select{background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--txt2);font-size:12px;font-family:inherit;padding:7px 10px;cursor:pointer;outline:none}
+select option{background:var(--card)}
+input[type=text]{background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--txt1);font-size:12px;font-family:inherit;padding:7px 12px;outline:none;flex:1;min-width:200px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--border);outline:none;cursor:pointer;margin-bottom:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--teal);cursor:pointer}
+.kgrid{display:grid;gap:14px;margin-bottom:24px}
+.k4{grid-template-columns:repeat(4,1fr)}
+.k5{grid-template-columns:repeat(5,1fr)}
+.kcard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;border-top-width:2px}
+.klbl{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.kval{font-size:26px;font-weight:700;color:var(--txt1);font-family:'IBM Plex Mono',monospace}
+.ksub{font-size:12px;color:var(--txt2);margin-top:6px}
+.up{color:var(--green)}
+.down{color:var(--red)}
+.cgrid{display:grid;gap:14px;margin-bottom:24px}
+.c21{grid-template-columns:1.6fr 1fr}
+.c11{grid-template-columns:1.6fr 1fr}
+.ccrd{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 20px 14px}
+.ctitle{font-size:15px;font-weight:600;color:var(--txt1);margin-bottom:3px}
+.csub{font-size:12px;color:var(--txt2);margin-bottom:14px}
+.cwrap{position:relative;width:100%}
+.leg{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2)}
+.ls{width:12px;height:3px;border-radius:2px;display:inline-block}
+.tcrd{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px}
+.tcrd-hdr{padding:16px 20px 0}
+.twrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;padding:10px 12px;font-weight:500;border-bottom:1px solid var(--border);background:var(--sidebar);white-space:nowrap}
+th.r{text-align:right}
+td{font-size:13px;color:var(--txt1);padding:11px 12px;border-bottom:1px solid rgba(30,47,69,.5)}
+td.r{text-align:right}
+td.mono{font-family:'IBM Plex Mono',monospace}
+tr:hover td{background:rgba(0,201,167,.02)}
+.stabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.stab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--txt2);font-size:13px;font-family:inherit;padding:10px 20px;cursor:pointer;font-weight:400;margin-bottom:-1px}
+.stab.active{border-bottom-color:var(--teal);color:var(--teal);font-weight:600}
+.sv{display:none}
+.sv.active{display:block}
+.sechdr{margin-bottom:16px}
+.sechdr h2{font-size:15px;font-weight:600;color:var(--txt1)}
+.sechdr p{font-size:12px;color:var(--txt2);margin-top:3px}
+.igrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.icrd{background:var(--sidebar);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;border-left-width:3px}
+.ititle{font-size:12px;font-weight:600;color:var(--txt1)}
+.itext{font-size:12px;color:var(--txt2);line-height:1.55}
+.ibtn{align-self:flex-start;background:transparent;border-radius:5px;font-size:11px;font-family:inherit;padding:4px 10px;cursor:pointer;margin-top:2px;border-width:1px;border-style:solid}
+.ai-hdr{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.ai-dot{width:8px;height:8px;background:var(--teal);border-radius:50%}
+.ai-t{font-size:15px;font-weight:600;color:var(--txt1)}
+.ai-b{background:rgba(0,201,167,.15);color:var(--teal);font-size:10px;padding:2px 7px;border-radius:20px;border:1px solid rgba(0,201,167,.3);margin-left:4px}
+.pipe{display:flex;align-items:stretch;gap:0;margin-top:8px}
+.pstep{flex:1;background:var(--sidebar);border-radius:10px;padding:18px 14px;text-align:center}
+.parr{display:flex;align-items:center;padding:0 8px;color:var(--txt3);font-size:20px}
+.pnum{font-size:24px;font-weight:700;font-family:'IBM Plex Mono',monospace;margin-bottom:6px}
+.plbl{font-size:12px;font-weight:600;color:var(--txt1);margin-bottom:4px}
+.pdesc{font-size:11px;color:var(--txt3)}
+.sbars{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.srow{display:flex;align-items:center;gap:10px}
+.sname{font-size:11px;color:var(--txt2);width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strk{flex:1;height:6px;background:var(--sidebar);border-radius:4px;overflow:hidden}
+.sfil{height:100%;border-radius:4px}
+.snum{font-size:12px;font-weight:700;width:28px;text-align:right}
+.simgrid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:20px;align-items:end}
+.simlbl{font-size:11px;color:var(--txt2);display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+.simval{font-size:14px;color:var(--txt1);font-weight:600;font-family:'IBM Plex Mono',monospace}
+.simres{background:var(--sidebar);border:1px solid rgba(0,201,167,.3);border-radius:8px;padding:16px 18px}
+.srl{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.srv{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace}
+.srl2{font-size:11px;color:var(--txt3);margin:10px 0 3px}
+.srv2{font-size:20px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--teal)}
+.alist{display:flex;flex-direction:column;gap:8px}
+.arow{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--sidebar);border:1px solid var(--border);border-radius:8px;border-left-width:3px}
+.asev{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;letter-spacing:.05em}
+.amsg{font-size:13px;color:var(--txt1);flex:1;line-height:1.5}
+.atim{font-size:11px;color:var(--txt3);white-space:nowrap}
+.flt{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.crd{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:24px}
+.tyb{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.25);border-radius:4px;padding:2px 7px;font-size:11px;font-family:monospace}
+
+/* ── MOBILE HEADER ── */
+#mob-header{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--sidebar);border-bottom:1px solid var(--border);z-index:200}
+#mob-header .mh-logo{display:flex;align-items:center;gap:8px}
+#mob-header .mh-logo span{font-size:13px;font-weight:700;color:var(--txt1)}
+#hamburger{background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px 10px;cursor:pointer;color:var(--txt2);font-size:16px;line-height:1}
+#hamburger:hover{color:var(--txt1)}
+
+/* ── DRAWER OVERLAY ── */
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200}
+#overlay.open{display:block}
+#sidebar.drawer-open{transform:translateX(0)!important}
+
+/* ── BOTTOM NAV (mobile) ── */
+#bottom-nav{display:none;background:var(--sidebar);border-top:1px solid var(--border);z-index:100;padding:6px 4px env(safe-area-inset-bottom)}
+.bnav-items{display:flex;align-items:stretch}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:transparent;border:none;padding:6px 2px;cursor:pointer;color:var(--txt3);font-size:9px;font-family:inherit;letter-spacing:.02em}
+.bnav-btn .bicon{font-size:16px;line-height:1}
+.bnav-btn.active{color:var(--teal)}
+
+/* ── RESPONSIVE GRID ── */
+@media(max-width:1024px){
+  #sidebar{width:60px;min-width:60px}
+  .sb-co,.sb-foot,.sb-logo .sb-name,.sb-logo .sb-prod{display:none}
+  .nav-btn span:not(.nav-icon){display:none}
+  .nav-btn{justify-content:center;padding:10px}
+  .nav-icon{opacity:.5;font-size:16px}
+  .nav-btn.active .nav-icon{opacity:1}
+  .sb-logo{justify-content:center;padding:16px 0}
+  .sb-icon{margin:0}
+}
+
+@media(max-width:640px){
+  #sidebar{position:fixed;left:0;top:0;height:100vh;z-index:300;transform:translateX(-100%);transition:transform .25s ease;width:220px!important;min-width:220px!important}
+  .sb-co,.sb-foot,.sb-logo .sb-name,.sb-logo .sb-prod{display:block}
+  .nav-btn span:not(.nav-icon){display:inline}
+  .nav-btn{justify-content:flex-start;padding:9px 12px}
+  .nav-icon{font-size:12px}
+  .sb-logo{justify-content:flex-start;padding:20px 18px 16px}
+  #mob-header{display:flex;position:fixed;top:0;left:0;right:0;z-index:200}
+  #bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0}
+  #main{width:100%;padding-top:52px;padding-bottom:76px}
+  .view{padding:16px}
+  .pg-hdr{flex-direction:column;align-items:flex-start;gap:12px;margin-bottom:20px}
+  .hdr-act{width:100%;justify-content:space-between}
+  .hdr-act select,.hdr-act .btn{flex:1}
+  .k4{grid-template-columns:repeat(2,1fr)}
+  .k5{grid-template-columns:repeat(2,1fr)}
+  .kval{font-size:20px}
+  .c21,.c11{grid-template-columns:1fr}
+  .igrid{grid-template-columns:1fr}
+  .simgrid{grid-template-columns:1fr 1fr;gap:12px}
+  .simres{grid-column:1/-1}
+  .pipe{overflow-x:auto;gap:4px;padding-bottom:8px}
+  .pstep{min-width:130px;padding:12px 10px}
+  .parr{padding:0 2px;font-size:14px}
+  .pnum{font-size:18px}
+  .stabs{overflow-x:auto;white-space:nowrap}
+  .stab{white-space:nowrap}
+  .flt{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+  .flt select,.flt input{min-width:140px}
+  .cgrid{gap:12px}
+  .kgrid{gap:10px}
+  th,td{padding:8px 10px;font-size:12px}
+  .srv{font-size:18px}
+  .sname{width:80px}
+  .alist .arow{flex-wrap:wrap;gap:8px}
+  .atim{margin-left:auto}
+  .pg-title{font-size:18px}
+}
+
+@media(min-width:641px) and (max-width:1024px){
+  .k4{grid-template-columns:repeat(2,1fr)}
+  .k5{grid-template-columns:repeat(3,1fr)}
+  .c21,.c11{grid-template-columns:1fr}
+  .igrid{grid-template-columns:1fr}
+  .simgrid{grid-template-columns:1fr 1fr}
+  .simres{grid-column:1/-1}
+  .pipe{overflow-x:auto;padding-bottom:8px}
+  .pstep{min-width:140px}
+  .view{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- MOBILE HEADER -->
+<header id="mob-header">
+  <div class="mh-logo">
+    <div class="sb-icon" style="width:26px;height:26px;font-size:11px">SH</div>
+    <span>SplitHub</span>
+  </div>
+  <button id="hamburger" onclick="toggleSidebar()">☰</button>
+</header>
+
+<!-- BOTTOM NAV (mobile only) -->
+<nav id="bottom-nav">
+  <div class="bnav-items">
+    <button class="bnav-btn active" onclick="showView('dashboard',this,true)"><span class="bicon">◉</span>Dashboard</button>
+    <button class="bnav-btn" onclick="showView('pagamentos',this,true)"><span class="bicon">⊟</span>Pagamentos</button>
+    <button class="bnav-btn" onclick="showView('creditos',this,true)"><span class="bicon">◈</span>Créditos</button>
+    <button class="bnav-btn" onclick="showView('conciliacao',this,true)"><span class="bicon">⋈</span>Conciliação</button>
+    <button class="bnav-btn" onclick="showView('inteligencia',this,true)"><span class="bicon">◆</span>Insights</button>
+  </div>
+</nav>
+
+<div id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-icon">SH</div>
+    <div>
+      <p class="sb-name">SplitHub</p>
+      <p class="sb-prod">Positivo Tecnologia</p>
+    </div>
+  </div>
+  <div class="sb-co">
+    <div class="sb-co-box">
+      <div class="lbl">Empresa ativa</div>
+      <div class="val">Bosch do Brasil Ltda</div>
+      <div class="sub">07.200.002/0001-18 ↕</div>
+    </div>
+  </div>
+  <nav>
+    <button class="nav-btn active" onclick="showView('dashboard',this)"><span class="nav-icon">◉</span> Dashboard</button>
+    <button class="nav-btn" onclick="showView('pagamentos',this)"><span class="nav-icon">⊟</span> Gestão de Pagamentos</button>
+    <button class="nav-btn" onclick="showView('creditos',this)"><span class="nav-icon">◈</span> Gestão de Créditos</button>
+    <button class="nav-btn" onclick="showView('conciliacao',this)"><span class="nav-icon">⋈</span> Conciliação</button>
+    <button class="nav-btn" onclick="showView('inteligencia',this)"><span class="nav-icon">◆</span> Inteligência</button>
+  </nav>
+  <div class="sb-foot">
+    <div class="st-row"><span class="dot" style="background:var(--green)"></span>Plataforma Centralizada OK</div>
+    <div class="st-row"><span class="dot" style="background:var(--green)"></span>ERP sincronizado</div>
+    <div class="sb-user">
+      <div class="avatar">TM</div>
+      <div><div class="u-name">Toshio M.</div><div class="u-role">Head of Product</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+
+<!-- DASHBOARD -->
+<div id="view-dashboard" class="view active">
+  <div class="pg-hdr">
+    <div><div class="pg-title">Visão Geral</div><div class="pg-sub">Período: Abril 2026 · Última atualização: 24/04/2026 às 11:47</div></div>
+    <div class="hdr-act">
+      <select><option>Todos os CNPJs</option><option>CNPJ principal</option></select>
+      <button class="btn btn-t">↻ Sincronizar</button>
+    </div>
+  </div>
+  <div class="kgrid k4">
+    <div class="kcard" style="border-top-color:var(--teal)"><div class="klbl">Créditos confirmados</div><div class="kval">R$ 52,3M</div><div class="ksub up">▲ 6,8% — Confirmados via Plataforma</div></div>
+    <div class="kcard" style="border-top-color:var(--amber)"><div class="klbl">Créditos pendentes</div><div class="kval">R$ 10,9M</div><div class="ksub down">▼ 12,1% — Aguardando retorno</div></div>
+    <div class="kcard" style="border-top-color:var(--red)"><div class="klbl">Créditos em risco</div><div class="kval">R$ 2,4M</div><div class="ksub">Vencimento em menos de 48h</div></div>
+    <div class="kcard" style="border-top-color:var(--blue)"><div class="klbl">Alíquota efetiva</div><div class="kval">9,14%</div><div class="ksub down">▼ 5,3% — -0,51 pp vs. setor</div></div>
+  </div>
+  <div class="cgrid c21">
+    <div class="ccrd">
+      <div class="ctitle">Evolução de Créditos IBS+CBS</div><div class="csub">R$ milhões · últimos 7 meses</div>
+      <div class="cwrap" style="height:200px"><canvas id="cCreditos" role="img" aria-label="Evolução de créditos">Créditos mensais apropriados, pendentes e em risco.</canvas></div>
+      <div class="leg"><span class="li"><span class="ls" style="background:var(--teal)"></span>Apropriados</span><span class="li"><span class="ls" style="background:var(--amber);opacity:.7"></span>Pendentes</span><span class="li"><span class="ls" style="background:var(--red)"></span>Em risco</span></div>
+    </div>
+    <div class="ccrd">
+      <div class="ctitle">Pagamentos executados</div><div class="csub">R$ milhões · últimos 7 meses</div>
+      <div class="cwrap" style="height:200px"><canvas id="cPagamentos" role="img" aria-label="Pagamentos mensais">DARF CBS e Guia IBS mensais.</canvas></div>
+      <div class="leg"><span class="li"><span class="ls" style="background:var(--blue)"></span>DARF CBS</span><span class="li"><span class="ls" style="background:var(--teal)"></span>Guia IBS</span></div>
+    </div>
+  </div>
+  <div class="crd">
+    <div class="ai-hdr"><div class="ai-dot"></div><span class="ai-t">Inteligência SplitHub</span><span class="ai-b">IA Ativa</span></div>
+    <div class="igrid">
+      <div class="icrd" style="border-left-color:var(--red)"><div class="ititle">Crédito em risco: Vale S.A.</div><div class="itext">Guia IBS de R$ 512 mil vence em 48h. Sem pagamento, crédito de CBS é perdido (art. 48 LC 214).</div><button class="ibtn" style="color:var(--red);border-color:rgba(244,63,94,.3)">Executar pagamento agora →</button></div>
+      <div class="icrd" style="border-left-color:var(--amber)"><div class="ititle">Divergência RF×TF detectada</div><div class="itext">2 notas da Randon S.A. com RF sem TF correspondente. Possível glosa no próximo período.</div><button class="ibtn" style="color:var(--amber);border-color:rgba(245,158,11,.3)">Verificar divergências →</button></div>
+      <div class="icrd" style="border-left-color:var(--teal)"><div class="ititle">Alíquota efetiva: -0,51% vs. mercado</div><div class="itext">Controle de créditos gerou economia de R$ 318k em relação à alíquota média do setor.</div><button class="ibtn" style="color:var(--teal);border-color:rgba(0,201,167,.3)">Ver relatório →</button></div>
+      <div class="icrd" style="border-left-color:var(--blue)"><div class="ititle">Conciliação mensal disponível</div><div class="itext">Março 2026 conciliado: 100% dos RF vinculados a TF. Relatório disponível para auditoria.</div><button class="ibtn" style="color:var(--blue);border-color:rgba(59,130,246,.3)">Baixar relatório →</button></div>
+    </div>
+  </div>
+  <div class="tcrd">
+    <div class="tcrd-hdr"><div class="sechdr"><h2>Últimas transações</h2><p>Pagamentos e confirmações mais recentes</p></div></div>
+    <div class="twrap"><table><thead><tr><th>ID / RF</th><th>Fornecedor</th><th>Tipo</th><th class="r">Valor</th><th>Vencimento</th><th>Status</th></tr></thead><tbody id="t-recent"></tbody></table></div>
+  </div>
+</div>
+
+<!-- PAGAMENTOS -->
+<div id="view-pagamentos" class="view">
+  <div class="pg-hdr">
+    <div><div class="pg-title">Gestão de Pagamentos</div><div class="pg-sub">Impostos (DARF/Guia IBS) e fornecedores · Abril 2026</div></div>
+    <button class="btn btn-t">+ Novo pagamento manual</button>
+  </div>
+  <div class="stabs">
+    <button class="stab active" onclick="showSub('pag','imp',this)">Impostos (DARF / Guia IBS)</button>
+    <button class="stab" onclick="showSub('pag','forn',this)">Fornecedores</button>
+  </div>
+  <div id="pag-imp" class="sv active">
+    <div class="kgrid k4">
+      <div class="kcard" style="border-top-color:var(--teal)"><div class="klbl">A vencer (7 dias)</div><div class="kval">R$ 4,1M</div><div class="ksub">4 guias pendentes</div></div>
+      <div class="kcard" style="border-top-color:var(--amber)"><div class="klbl">Vencendo hoje</div><div class="kval">R$ 512K</div><div class="ksub">1 guia — Vale S.A.</div></div>
+      <div class="kcard" style="border-top-color:var(--red)"><div class="klbl">Atrasados</div><div class="kval">R$ 168K</div><div class="ksub">1 guia — Randon S.A.</div></div>
+      <div class="kcard" style="border-top-color:var(--green)"><div class="klbl">Pagos em abril</div><div class="kval">R$ 6,8M</div><div class="ksub">38 guias executadas</div></div>
+    </div>
+    <div class="flt">
+      <select><option>Todos os status</option><option>Pendente</option><option>Pago</option><option>Atrasado</option></select>
+      <select><option>Todos os tipos</option><option>DARF CBS</option><option>Guia IBS</option></select>
+      <input type="text" placeholder="Buscar fornecedor ou RF…"/>
+    </div>
+    <div class="tcrd"><div class="twrap"><table><thead><tr><th>ID</th><th>RF</th><th>Fornecedor</th><th>Tipo</th><th class="r">Valor</th><th>Vencimento</th><th>Status</th><th>Ação</th></tr></thead><tbody id="t-impostos"></tbody></table></div></div>
+  </div>
+  <div id="pag-forn" class="sv">
+    <div class="kgrid k4">
+      <div class="kcard" style="border-top-color:var(--teal)"><div class="klbl">Fornecedores ativos</div><div class="kval">47</div><div class="ksub">Com NF-e em abril</div></div>
+      <div class="kcard" style="border-top-color:var(--blue)"><div class="klbl">Score médio</div><div class="kval">79,4</div><div class="ksub">Saúde geral do portfólio</div></div>
+      <div class="kcard" style="border-top-color:var(--amber)"><div class="klbl">Com pendências</div><div class="kval">4</div><div class="ksub">Pagamentos em aberto</div></div>
+      <div class="kcard" style="border-top-color:var(--red)"><div class="klbl">Em risco</div><div class="kval">1</div><div class="ksub">Score abaixo de 60</div></div>
+    </div>
+    <div class="tcrd"><div class="twrap"><table><thead><tr><th>Fornecedor</th><th>CNPJ</th><th class="r">Vol. compras</th><th class="r">Créditos gerados</th><th>Pagtos</th><th>Pendentes</th><th>Score</th><th>Status</th></tr></thead><tbody id="t-forn"></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- CRÉDITOS -->
+<div id="view-creditos" class="view">
+  <div class="pg-hdr"><div><div class="pg-title">Gestão de Créditos</div><div class="pg-sub">Posição IBS + CBS · Art. 48 LC 214/2025 · Abril 2026</div></div></div>
+  <div class="kgrid k5">
+    <div class="kcard" style="border-top-color:var(--teal)"><div class="klbl">Total de créditos</div><div class="kval">R$ 65,6M</div><div class="ksub">IBS + CBS · abr/26</div></div>
+    <div class="kcard" style="border-top-color:var(--green)"><div class="klbl">Confirmados</div><div class="kval">R$ 52,3M</div><div class="ksub">79,7% — retorno Plataforma</div></div>
+    <div class="kcard" style="border-top-color:var(--blue)"><div class="klbl">Aguardando</div><div class="kval">R$ 10,9M</div><div class="ksub">16,6% — pagamento efetuado</div></div>
+    <div class="kcard" style="border-top-color:var(--amber)"><div class="klbl">Em risco</div><div class="kval">R$ 2,4M</div><div class="ksub">3,7% — vencimento próximo</div></div>
+    <div class="kcard" style="border-top-color:var(--red)"><div class="klbl">Perda acumulada</div><div class="kval">R$ 168K</div><div class="ksub">0,3% — crédito perdido</div></div>
+  </div>
+  <div class="ccrd" style="margin-bottom:24px">
+    <div class="ctitle">Composição de créditos</div><div class="csub">R$ milhões · últimos 7 meses</div>
+    <div class="cwrap" style="height:220px"><canvas id="cComposicao" role="img" aria-label="Composição de créditos">Créditos confirmados, aguardando e em risco mensais.</canvas></div>
+    <div class="leg"><span class="li"><span class="ls" style="background:var(--green)"></span>Confirmados</span><span class="li"><span class="ls" style="background:var(--blue)"></span>Aguardando</span><span class="li"><span class="ls" style="background:var(--red)"></span>Em risco</span></div>
+  </div>
+  <div class="tcrd">
+    <div class="tcrd-hdr"><div class="sechdr"><h2>Detalhamento por documento fiscal</h2><p>RF × TF × Crédito — conciliação trifásica</p></div></div>
+    <div class="twrap"><table><thead><tr><th>RF</th><th>Nota Fiscal</th><th>Fornecedor</th><th>Data NF</th><th class="r">Valor NF</th><th class="r">Crédito</th><th class="r">CBS</th><th class="r">IBS</th><th>Pagamento</th><th>Status</th></tr></thead><tbody id="t-creditos"></tbody></table></div>
+  </div>
+</div>
+
+<!-- CONCILIAÇÃO -->
+<div id="view-conciliacao" class="view">
+  <div class="pg-hdr"><div><div class="pg-title">Conciliação Trifásica</div><div class="pg-sub">Match DF-e × Pagamento × Crédito confirmado · Art. 48 LC 214</div></div></div>
+  <div class="kgrid k4">
+    <div class="kcard" style="border-top-color:var(--blue)"><div class="klbl">DF-e recebidos</div><div class="kval">1.847</div><div class="ksub">NF-e processadas em abr/26</div></div>
+    <div class="kcard" style="border-top-color:var(--teal)"><div class="klbl">RF vinculados</div><div class="kval">1.831</div><div class="ksub">99,1% com RF registrado</div></div>
+    <div class="kcard" style="border-top-color:var(--green)"><div class="klbl">TF confirmadas</div><div class="kval">1.809</div><div class="ksub">97,9% com TF validada</div></div>
+    <div class="kcard" style="border-top-color:var(--amber)"><div class="klbl">Divergências</div><div class="kval">22</div><div class="ksub">1,2% — em análise</div></div>
+  </div>
+  <div class="crd">
+    <div class="sechdr"><h2>Pipeline de conciliação</h2><p>Fluxo DF-e → RF → Pagamento → Crédito confirmado</p></div>
+    <div class="pipe">
+      <div class="pstep" style="border:1px solid rgba(59,130,246,.3)"><div class="pnum" style="color:var(--blue)">1.847</div><div class="plbl">DF-e recebido</div><div class="pdesc">NF-e/NFS-e via SEFAZ</div></div>
+      <div class="parr">→</div>
+      <div class="pstep" style="border:1px solid rgba(0,201,167,.3)"><div class="pnum" style="color:var(--teal)">1.831</div><div class="plbl">RF extraído</div><div class="pdesc">Registro Fiscal identificado</div></div>
+      <div class="parr">→</div>
+      <div class="pstep" style="border:1px solid rgba(34,197,94,.3)"><div class="pnum" style="color:var(--green)">1.809</div><div class="plbl">TF executada</div><div class="pdesc">Pix enviado à RFB + CG-IBS</div></div>
+      <div class="parr">→</div>
+      <div class="pstep" style="border:1px solid rgba(163,230,53,.3)"><div class="pnum" style="color:#A3E635">1.793</div><div class="plbl">Crédito confirmado</div><div class="pdesc">Retorno Plataforma Centralizada</div></div>
+    </div>
+  </div>
+  <div class="tcrd">
+    <div class="tcrd-hdr"><div class="sechdr"><h2>Divergências em análise</h2><p>Documentos com RF sem TF correspondente ou crédito não confirmado</p></div></div>
+    <div class="twrap"><table><thead><tr><th>RF</th><th>Fornecedor</th><th>NF-e</th><th class="r">Valor crédito</th><th>Tipo divergência</th><th>Identificada em</th><th>Ação sugerida</th></tr></thead>
+    <tbody>
+      <tr><td class="mono" style="color:var(--red);font-size:11px">RF-28901-X</td><td>Randon S.A.</td><td class="mono" style="font-size:11px">NF-e 00007823</td><td class="r mono" style="color:var(--amber);font-weight:600">R$ 167.800,00</td><td><span style="background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.25);border-radius:4px;padding:2px 7px;font-size:11px">TF ausente</span></td><td style="font-size:12px;color:var(--txt2)">23/04 18:22</td><td><button class="btn" style="font-size:11px;padding:4px 8px">Reprocessar pagamento</button></td></tr>
+      <tr><td class="mono" style="color:var(--red);font-size:11px">RF-28902-Y</td><td>Randon S.A.</td><td class="mono" style="font-size:11px">NF-e 00007904</td><td class="r mono" style="color:var(--amber);font-weight:600">R$ 84.200,00</td><td><span style="background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.25);border-radius:4px;padding:2px 7px;font-size:11px">TF divergente</span></td><td style="font-size:12px;color:var(--txt2)">23/04 18:22</td><td><button class="btn" style="font-size:11px;padding:4px 8px">Verificar hash Pix</button></td></tr>
+      <tr><td class="mono" style="color:var(--red);font-size:11px">RF-28903-Z</td><td>Marcopolo S.A.</td><td class="mono" style="font-size:11px">NF-e 00011203</td><td class="r mono" style="color:var(--amber);font-weight:600">R$ 221.500,00</td><td><span style="background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.25);border-radius:4px;padding:2px 7px;font-size:11px">Crédito pendente</span></td><td style="font-size:12px;color:var(--txt2)">24/04 07:15</td><td><button class="btn" style="font-size:11px;padding:4px 8px">Aguardar plataforma</button></td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- INTELIGÊNCIA -->
+<div id="view-inteligencia" class="view">
+  <div class="pg-hdr"><div><div class="pg-title">Inteligência & Insights</div><div class="pg-sub">Alíquota efetiva · Score de fornecedores · Simulador de ROI · Alertas</div></div></div>
+  <div class="cgrid c11" style="margin-bottom:24px">
+    <div class="ccrd">
+      <div class="ctitle">Alíquota efetiva vs. mercado</div><div class="csub">% mensal — quanto menor, mais crédito protegido</div>
+      <div class="cwrap" style="height:200px"><canvas id="cAliquota" role="img" aria-label="Alíquota efetiva comparada com mercado">Linhas comparando alíquota real, projetada e de mercado.</canvas></div>
+      <div class="leg"><span class="li"><span class="ls" style="background:var(--teal)"></span>Sua alíquota</span><span class="li"><span class="ls" style="background:var(--blue)"></span>Projetada</span><span class="li"><span class="ls" style="background:var(--txt3)"></span>Média mercado</span></div>
+    </div>
+    <div class="ccrd">
+      <div class="ctitle">Score de risco por fornecedor</div>
+      <div class="sbars" id="score-bars"></div>
+      <p style="font-size:11px;color:var(--txt3);margin-top:14px;line-height:1.5">Score calculado a partir de pontualidade, taxa de falha RF×TF e histórico de glosas.</p>
+    </div>
+  </div>
+  <div class="crd" style="margin-bottom:24px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+      <h2 style="font-size:15px;font-weight:600;color:var(--txt1)">Simulador de ROI — Exercício do CFO</h2>
+      <span style="background:rgba(245,158,11,.15);color:var(--amber);font-size:10px;padding:2px 7px;border-radius:20px;border:1px solid rgba(245,158,11,.3)">Personalizável</span>
+    </div>
+    <div class="simgrid">
+      <div><label class="simlbl">Compras anuais (R$ M)</label><input type="range" id="sim-c" min="100" max="5000" step="50" value="1500" oninput="updateSim()"/><div class="simval" id="v-c">R$ 1.500M</div></div>
+      <div><label class="simlbl">Alíquota IVA média (%)</label><input type="range" id="sim-a" min="5" max="26.5" step="0.5" value="9" oninput="updateSim()"/><div class="simval" id="v-a">9,0%</div></div>
+      <div><label class="simlbl">Taxa de falha estimada (%)</label><input type="range" id="sim-f" min="1" max="25" step="1" value="5" oninput="updateSim()"/><div class="simval" id="v-f">5%</div></div>
+      <div class="simres"><div class="srl">Perda potencial/ano</div><div class="srv" id="s-perda" style="color:var(--red)">R$ 6.750.000,00</div><div class="srl2">ROI Split Hub estimado</div><div class="srv2" id="s-roi">11,3x</div></div>
+    </div>
+  </div>
+  <div class="crd">
+    <div class="sechdr"><h2>Alertas e anomalias detectadas</h2><p>Monitoramento contínuo via IA</p></div>
+    <div class="alist">
+      <div class="arow" style="border-left-color:var(--red)"><span class="asev" style="background:rgba(244,63,94,.15);color:var(--red)">CRÍTICO</span><div class="amsg">Vale S.A. — Guia IBS R$ 512.400 vence em 27h. Risco de perda de crédito CBS (art. 48 LC 214).</div><span class="atim">24/04 11:32</span></div>
+      <div class="arow" style="border-left-color:var(--amber)"><span class="asev" style="background:rgba(245,158,11,.15);color:var(--amber)">ATENÇÃO</span><div class="amsg">Randon S.A. — 7 pagamentos pendentes com RF sem TF. Provável divergência na conciliação de março.</div><span class="atim">24/04 09:15</span></div>
+      <div class="arow" style="border-left-color:var(--amber)"><span class="asev" style="background:rgba(245,158,11,.15);color:var(--amber)">ATENÇÃO</span><div class="amsg">Marcopolo S.A. — score de risco caiu de 82 para 68 em 30 dias. Verificar histórico de pagamentos.</div><span class="atim">24/04 08:41</span></div>
+      <div class="arow" style="border-left-color:var(--blue)"><span class="asev" style="background:rgba(59,130,246,.15);color:var(--blue)">INFO</span><div class="amsg">Conciliação de março 2026 concluída: 100% dos RF vinculados. Relatório disponível para auditoria.</div><span class="atim">23/04 18:00</span></div>
+      <div class="arow" style="border-left-color:var(--blue)"><span class="asev" style="background:rgba(59,130,246,.15);color:var(--blue)">INFO</span><div class="amsg">Petrobras Dist. — 47 pagamentos consecutivos sem pendências. Score elevado para 97.</div><span class="atim">22/04 14:22</span></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+var impostos=[
+  {id:"TXN-9841",tipo:"DARF CBS",forn:"Bosch Ltda",cnpj:"07.200.002/0001-18",valor:248700,venc:"28/04/2026",status:"pendente",rf:"RF-28841-A"},
+  {id:"TXN-9842",tipo:"Guia IBS",forn:"Embraer S.A.",cnpj:"07.200.001/0001-05",valor:183200,venc:"28/04/2026",status:"pendente",rf:"RF-28842-B"},
+  {id:"TXN-9843",tipo:"DARF CBS",forn:"Vale S.A.",cnpj:"33.592.510/0001-54",valor:512400,venc:"27/04/2026",status:"vencendo",rf:"RF-28843-C"},
+  {id:"TXN-9844",tipo:"Guia IBS",forn:"Petrobras Dist.",cnpj:"34.274.233/0001-02",valor:328900,venc:"26/04/2026",status:"pago",rf:"RF-28844-D"},
+  {id:"TXN-9845",tipo:"DARF CBS",forn:"WEG Equipamentos",cnpj:"84.429.695/0001-11",valor:94300,venc:"30/04/2026",status:"pago",rf:"RF-28845-E"},
+  {id:"TXN-9846",tipo:"Guia IBS",forn:"Randon S.A.",cnpj:"89.086.144/0001-16",valor:167800,venc:"25/04/2026",status:"atrasado",rf:"RF-28846-F"},
+  {id:"TXN-9847",tipo:"DARF CBS",forn:"Tupy Fund.",cnpj:"84.683.481/0001-04",valor:78900,venc:"30/04/2026",status:"pendente",rf:"RF-28847-G"},
+  {id:"TXN-9848",tipo:"Guia IBS",forn:"Marcopolo S.A.",cnpj:"88.611.835/0001-29",valor:221500,venc:"28/04/2026",status:"pendente",rf:"RF-28848-H"}
+];
+var fornecedores=[
+  {nome:"Bosch Ltda",cnpj:"07.200.002/0001-18",volume:2487000,cred:248700,status:"ok",score:94,pagtos:38,pend:2},
+  {nome:"Vale S.A.",cnpj:"33.592.510/0001-54",volume:5124000,cred:512400,status:"alerta",score:71,pagtos:61,pend:4},
+  {nome:"Embraer S.A.",cnpj:"07.200.001/0001-05",volume:1832000,cred:183200,status:"ok",score:89,pagtos:29,pend:1},
+  {nome:"Petrobras Dist.",cnpj:"34.274.233/0001-02",volume:3289000,cred:328900,status:"ok",score:97,pagtos:47,pend:0},
+  {nome:"Randon S.A.",cnpj:"89.086.144/0001-16",volume:1678000,cred:167800,status:"risco",score:52,pagtos:18,pend:7},
+  {nome:"WEG Equipamentos",cnpj:"84.429.695/0001-11",volume:943000,cred:94300,status:"ok",score:88,pagtos:22,pend:1},
+  {nome:"Marcopolo S.A.",cnpj:"88.611.835/0001-29",volume:2215000,cred:221500,status:"alerta",score:68,pagtos:34,pend:3}
+];
+var creditos=[
+  {rf:"RF-28844-D",nf:"NF-e 00012849",forn:"Petrobras Dist.",data:"24/04/2026",valorNF:3289000,cred:328900,cbs:205600,ibs:123300,status:"confirmado",pag:"24/04 09:14"},
+  {rf:"RF-28845-E",nf:"NF-e 00008734",forn:"WEG Equipamentos",data:"24/04/2026",valorNF:943000,cred:94300,cbs:59000,ibs:35300,status:"confirmado",pag:"24/04 10:22"},
+  {rf:"RF-28841-A",nf:"NF-e 00019201",forn:"Bosch Ltda",data:"23/04/2026",valorNF:2487000,cred:248700,cbs:155400,ibs:93300,status:"aguardando",pag:"—"},
+  {rf:"RF-28842-B",nf:"NF-e 00005412",forn:"Embraer S.A.",data:"23/04/2026",valorNF:1832000,cred:183200,cbs:114500,ibs:68700,status:"aguardando",pag:"—"},
+  {rf:"RF-28843-C",nf:"NF-e 00031004",forn:"Vale S.A.",data:"22/04/2026",valorNF:5124000,cred:512400,cbs:320300,ibs:192100,status:"em_risco",pag:"Vencendo"},
+  {rf:"RF-28846-F",nf:"NF-e 00007823",forn:"Randon S.A.",data:"21/04/2026",valorNF:1678000,cred:167800,cbs:104900,ibs:62900,status:"perdido",pag:"Atrasado"}
+];
+
+var sc={
+  confirmado:{l:"Confirmado",bg:"rgba(34,197,94,.12)",c:"#22C55E",bc:"rgba(34,197,94,.25)"},
+  aguardando:{l:"Aguardando",bg:"rgba(163,230,53,.1)",c:"#A3E635",bc:"rgba(163,230,53,.2)"},
+  em_risco:{l:"Em risco",bg:"rgba(245,158,11,.12)",c:"#F59E0B",bc:"rgba(245,158,11,.25)"},
+  perdido:{l:"Perdido",bg:"rgba(244,63,94,.12)",c:"#F43F5E",bc:"rgba(244,63,94,.25)"},
+  pendente:{l:"Pendente",bg:"rgba(163,230,53,.1)",c:"#A3E635",bc:"rgba(163,230,53,.2)"},
+  vencendo:{l:"Vencendo",bg:"rgba(245,158,11,.12)",c:"#F59E0B",bc:"rgba(245,158,11,.25)"},
+  pago:{l:"Pago",bg:"rgba(34,197,94,.12)",c:"#22C55E",bc:"rgba(34,197,94,.25)"},
+  atrasado:{l:"Atrasado",bg:"rgba(244,63,94,.12)",c:"#F43F5E",bc:"rgba(244,63,94,.25)"},
+  ok:{l:"Regular",bg:"rgba(34,197,94,.12)",c:"#22C55E",bc:"rgba(34,197,94,.25)"},
+  alerta:{l:"Atenção",bg:"rgba(245,158,11,.12)",c:"#F59E0B",bc:"rgba(245,158,11,.25)"},
+  risco:{l:"Risco",bg:"rgba(244,63,94,.12)",c:"#F43F5E",bc:"rgba(244,63,94,.25)"}
+};
+
+function bdg(s){var c=sc[s]||sc.pendente;return'<span style="background:'+c.bg+';color:'+c.c+';border:1px solid '+c.bc+';border-radius:4px;padding:2px 8px;font-size:11px;font-weight:500;font-family:IBM Plex Mono,monospace">'+c.l+'</span>';}
+function sco(s){var c=s>=80?"#22C55E":s>=60?"#F59E0B":"#F43F5E";return'<span style="background:'+c+'18;color:'+c+';border:1px solid '+c+'33;border-radius:4px;padding:2px 10px;font-size:12px;font-weight:700">'+s+'</span>';}
+function ff(v){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v);}
+function fc(v){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",notation:"compact",maximumFractionDigits:1}).format(v);}
+
+function init(){
+  // recent
+  var h="";
+  for(var i=0;i<6;i++){var r=impostos[i];h+='<tr><td class="mono"><span style="color:#3A556F;font-size:11px">'+r.id+'</span><br><span style="color:#3B82F6;font-size:11px">'+r.rf+'</span></td><td><div>'+r.forn+'</div><div style="font-size:11px;color:#3A556F">'+r.cnpj+'</div></td><td>'+r.tipo+'</td><td class="r mono">'+ff(r.valor)+'</td><td>'+r.venc+'</td><td>'+bdg(r.status)+'</td></tr>';}
+  document.getElementById("t-recent").innerHTML=h;
+  // impostos
+  h="";
+  for(var i=0;i<impostos.length;i++){var r=impostos[i];var act=['pendente','vencendo','atrasado'].indexOf(r.status)>=0?'<button class="btn btn-t" style="font-size:11px;padding:4px 10px">Pagar via Pix</button>':'<span style="font-size:11px;color:#3A556F">Concluído</span>';h+='<tr><td class="mono" style="font-size:11px;color:#3A556F">'+r.id+'</td><td class="mono" style="color:#3B82F6;font-size:11px">'+r.rf+'</td><td><div style="font-weight:500">'+r.forn+'</div><div style="font-size:11px;color:#3A556F">'+r.cnpj+'</div></td><td><span class="tyb">'+r.tipo+'</span></td><td class="r mono" style="font-weight:600">'+ff(r.valor)+'</td><td>'+r.venc+'</td><td>'+bdg(r.status)+'</td><td>'+act+'</td></tr>';}
+  document.getElementById("t-impostos").innerHTML=h;
+  // fornecedores
+  h="";
+  for(var i=0;i<fornecedores.length;i++){var r=fornecedores[i];h+='<tr><td style="font-weight:500">'+r.nome+'</td><td class="mono" style="font-size:11px;color:#6D8AA8">'+r.cnpj+'</td><td class="r mono">'+fc(r.volume)+'</td><td class="r mono" style="color:#00C9A7;font-weight:600">'+fc(r.cred)+'</td><td><span style="color:#E2EBF5">'+r.pagtos+'</span> <span style="font-size:11px;color:#3A556F">pagtos</span></td><td><span style="color:'+(r.pend>0?"#F59E0B":"#22C55E")+';font-weight:600">'+r.pend+'</span></td><td>'+sco(r.score)+'</td><td>'+bdg(r.status)+'</td></tr>';}
+  document.getElementById("t-forn").innerHTML=h;
+  // creditos
+  h="";
+  for(var i=0;i<creditos.length;i++){var r=creditos[i];var pc=r.pag==="—"?"#3A556F":(r.status==="perdido"||r.status==="em_risco")?"#F43F5E":"#22C55E";h+='<tr><td class="mono" style="color:#3B82F6;font-size:11px">'+r.rf+'</td><td class="mono" style="font-size:11px">'+r.nf+'</td><td>'+r.forn+'</td><td>'+r.data+'</td><td class="r mono">'+ff(r.valorNF)+'</td><td class="r mono" style="color:#00C9A7;font-weight:700">'+ff(r.cred)+'</td><td class="r mono" style="color:#6D8AA8;font-size:11px">'+ff(r.cbs)+'</td><td class="r mono" style="color:#6D8AA8;font-size:11px">'+ff(r.ibs)+'</td><td style="font-size:11px;color:'+pc+'">'+r.pag+'</td><td>'+bdg(r.status)+'</td></tr>';}
+  document.getElementById("t-creditos").innerHTML=h;
+  // score bars
+  var sf=[...fornecedores].sort(function(a,b){return b.score-a.score;});
+  h="";
+  for(var i=0;i<sf.length;i++){var r=sf[i];var c=r.score>=80?"#22C55E":r.score>=60?"#F59E0B":"#F43F5E";h+='<div class="srow"><span class="sname">'+r.nome.split(" ")[0]+'</span><div class="strk"><div class="sfil" style="width:'+r.score+'%;background:'+c+'"></div></div><span class="snum" style="color:'+c+'">'+r.score+'</span></div>';}
+  document.getElementById("score-bars").innerHTML=h;
+}
+
+function showView(id,btn,fromBottomNav){
+  document.querySelectorAll(".view").forEach(function(v){v.classList.remove("active");});
+  document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});
+  document.querySelectorAll(".bnav-btn").forEach(function(b){b.classList.remove("active");});
+  document.getElementById("view-"+id).classList.add("active");
+  btn.classList.add("active");
+  // sync the other nav
+  if(fromBottomNav){
+    var sidebtns=document.querySelectorAll(".nav-btn");
+    var map={dashboard:0,pagamentos:1,creditos:2,conciliacao:3,inteligencia:4};
+    if(map[id]!==undefined) sidebtns[map[id]].classList.add("active");
+  } else {
+    var bbtns=document.querySelectorAll(".bnav-btn");
+    var map2={dashboard:0,pagamentos:1,creditos:2,conciliacao:3,inteligencia:4};
+    if(map2[id]!==undefined) bbtns[map2[id]].classList.add("active");
+    closeSidebar();
+  }
+}
+
+function toggleSidebar(){
+  var sb=document.getElementById("sidebar");
+  var ov=document.getElementById("overlay");
+  sb.classList.toggle("drawer-open");
+  ov.classList.toggle("open");
+}
+
+function closeSidebar(){
+  document.getElementById("sidebar").classList.remove("drawer-open");
+  document.getElementById("overlay").classList.remove("open");
+}
+
+function showSub(ns,id,btn){
+  document.querySelectorAll('[id^="'+ns+'-"]').forEach(function(v){v.classList.remove("active");});
+  btn.closest(".view").querySelectorAll(".stab").forEach(function(b){b.classList.remove("active");});
+  document.getElementById(ns+"-"+id).classList.add("active");
+  btn.classList.add("active");
+}
+
+function updateSim(){
+  var c=+document.getElementById("sim-c").value;
+  var a=+document.getElementById("sim-a").value;
+  var f=+document.getElementById("sim-f").value;
+  document.getElementById("v-c").textContent="R$ "+c.toLocaleString("pt-BR")+"M";
+  document.getElementById("v-a").textContent=a.toFixed(1).replace(".",",")+"%";
+  document.getElementById("v-f").textContent=f+"%";
+  var perda=Math.round(c*1e6*a/100*f/100);
+  var roi=(perda/600000).toFixed(1).replace(".",",");
+  document.getElementById("s-perda").textContent=ff(perda);
+  document.getElementById("s-roi").textContent=roi+"x";
+}
+
+function buildCharts(){
+  var months=["Out","Nov","Dez","Jan","Fev","Mar","Abr"];
+  var opt={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:"#0D1626",borderColor:"#1E2F45",borderWidth:1,titleColor:"#6D8AA8",bodyColor:"#E2EBF5"}},scales:{x:{grid:{color:"rgba(30,47,69,.5)"},ticks:{color:"#3A556F",font:{size:11}},border:{display:false}},y:{grid:{color:"rgba(30,47,69,.5)"},ticks:{color:"#3A556F",font:{size:11}},border:{display:false}}}};
+  new Chart(document.getElementById("cCreditos"),{type:"line",data:{labels:months,datasets:[{label:"Apropriados",data:[38.4,42.7,39.1,51.2,48.9,55.6,52.3],borderColor:"#00C9A7",backgroundColor:"rgba(0,201,167,.15)",fill:true,tension:.4,pointRadius:3,pointBackgroundColor:"#00C9A7",borderWidth:2},{label:"Pendentes",data:[12.1,9.8,14.3,11.2,8.7,13.4,10.9],borderColor:"#F59E0B",borderDash:[5,3],tension:.4,pointRadius:0,borderWidth:1.5},{label:"Em risco",data:[3.2,2.1,4.5,2.8,1.9,3.1,2.4],borderColor:"#F43F5E",tension:.4,pointRadius:4,pointBackgroundColor:"#F43F5E",borderWidth:1.5}]},options:JSON.parse(JSON.stringify(opt))});
+  new Chart(document.getElementById("cPagamentos"),{type:"bar",data:{labels:months,datasets:[{label:"DARF CBS",data:[18.2,19.8,17.4,22.1,21.3,24.6,23.8],backgroundColor:"#3B82F6",stack:"a"},{label:"Guia IBS",data:[12.7,13.1,11.9,15.4,14.8,17.2,16.9],backgroundColor:"#00C9A7",stack:"a",borderRadius:3}]},options:Object.assign(JSON.parse(JSON.stringify(opt)),{barPercentage:.55})});
+  new Chart(document.getElementById("cComposicao"),{type:"line",data:{labels:months,datasets:[{label:"Confirmados",data:[38.4,42.7,39.1,51.2,48.9,55.6,52.3],borderColor:"#22C55E",backgroundColor:"rgba(34,197,94,.15)",fill:true,tension:.4,pointRadius:3,pointBackgroundColor:"#22C55E",borderWidth:2},{label:"Aguardando",data:[12.1,9.8,14.3,11.2,8.7,13.4,10.9],borderColor:"#3B82F6",borderDash:[5,3],tension:.4,pointRadius:0,borderWidth:1.5},{label:"Em risco",data:[3.2,2.1,4.5,2.8,1.9,3.1,2.4],borderColor:"#F43F5E",tension:.4,pointRadius:4,pointBackgroundColor:"#F43F5E",borderWidth:1.5}]},options:JSON.parse(JSON.stringify(opt))});
+  var optA=JSON.parse(JSON.stringify(opt));optA.scales.y.min=8.9;optA.scales.y.max=9.8;optA.scales.y.ticks.callback=function(v){return v.toFixed(1)+"%";};
+  new Chart(document.getElementById("cAliquota"),{type:"line",data:{labels:months,datasets:[{label:"Sua alíquota",data:[9.42,9.38,9.51,9.29,9.21,9.18,9.14],borderColor:"#00C9A7",tension:.4,pointRadius:5,pointBackgroundColor:"#00C9A7",borderWidth:2.5},{label:"Projetada",data:[9.60,9.55,9.58,9.45,9.38,9.30,9.25],borderColor:"#3B82F6",borderDash:[5,3],tension:.4,pointRadius:0,borderWidth:1.5},{label:"Média mercado",data:[9.65,9.65,9.65,9.65,9.65,9.65,9.65],borderColor:"#3A556F",borderDash:[2,4],tension:0,pointRadius:0,borderWidth:1}]},options:optA});
+}
+
+init();
+buildCharts();
+</script>
+</body>
+</html>
