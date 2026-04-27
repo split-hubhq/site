@@ -1,0 +1,24 @@
+{
+  "name": "site",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "screenshot": "node screenshot.mjs",
+    "screenshot:full": "node screenshot.mjs --full"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/split-hubhq/site.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/split-hubhq/site/issues"
+  },
+  "homepage": "https://github.com/split-hubhq/site#readme",
+  "description": "",
+  "dependencies": {
+    "puppeteer": "^24.42.0"
+  }
+}
