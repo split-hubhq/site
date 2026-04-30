@@ -385,6 +385,31 @@
     .erp-note { text-align: center; font-size: 0.84rem; color: var(--text-3); }
 
     /* ══════════════════════════════════════════════
+       SECURITY / CERTIFICATIONS
+    ══════════════════════════════════════════════ */
+    .cert-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; max-width: 960px; margin: 0 auto 2.5rem; }
+    .cert-chip {
+      background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius);
+      padding: 1.75rem 1rem; display: flex; flex-direction: column;
+      align-items: center; text-align: center; gap: 0.5rem;
+      transition: all 0.25s var(--ease);
+    }
+    .cert-chip:hover { border-color: var(--green); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+    .cert-badge {
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--green-dark); background: var(--green-50); border: 1px solid var(--green-100);
+      padding: 0.2rem 0.6rem; border-radius: 4px; white-space: nowrap;
+    }
+    .cert-version { font-size: 1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; line-height: 1.2; }
+    .cert-desc { font-size: 0.72rem; color: var(--text-3); line-height: 1.5; }
+    .cert-footer {
+      max-width: 680px; margin: 0 auto; text-align: center;
+      background: var(--surface-3); border: 1.5px solid var(--border); border-radius: var(--radius);
+      padding: 1.25rem 2rem; font-size: 0.84rem; color: var(--text-2); line-height: 1.65;
+    }
+    .cert-footer strong { color: var(--text); }
+
+    /* ══════════════════════════════════════════════
        CONTACT
     ══════════════════════════════════════════════ */
     .contact-sec { background: var(--ink); padding: 8rem 0; position: relative; overflow: hidden; }
@@ -476,6 +501,7 @@
       .stat-card:nth-child(4) { border-top: 1px solid var(--border); border-right: none; }
       .nav-links { display: none; }
       .erp-grid { grid-template-columns: repeat(3, 1fr); }
+      .cert-grid { grid-template-columns: repeat(2, 1fr); }
       .human-photos { grid-template-columns: 1fr 1fr; }
       .footer-inner { grid-template-columns: 1fr 1fr; }
       .form-2col { grid-template-columns: 1fr; }
@@ -896,6 +922,62 @@
       <div class="erp-chip"><div class="erp-icon">📁</div>SFTP / Arquivo</div>
     </div>
     <p class="erp-note reveal">Não encontrou seu ERP? Nossa API genérica aceita qualquer sistema com suporte a REST ou troca de arquivos.</p>
+  </div>
+</section>
+
+<!-- ══ SECURITY ═══════════════════════════════════════ -->
+<section class="section section--light" id="seguranca">
+  <div class="container">
+    <div class="section-header reveal" style="text-align:center;margin-bottom:4rem;">
+      <div class="label">Segurança e Certificações</div>
+      <h2>Infraestrutura certificada pelos<br>padrões globais de pagamento</h2>
+      <p style="max-width:580px;margin:1rem auto 0;">Os produtos da Positivo são desenvolvidos seguindo os mais rigorosos padrões de qualidade e segurança do setor financeiro — da leitura do cartão ao processamento da transação.</p>
+    </div>
+    <div class="cert-grid reveal">
+      <div class="cert-chip">
+        <div class="cert-badge">PCI PTS</div>
+        <div class="cert-version">6X</div>
+        <div class="cert-desc">PIN Transaction Security — padrão global de segurança de terminais</div>
+      </div>
+      <div class="cert-chip">
+        <div class="cert-badge">EMV</div>
+        <div class="cert-version">L1 & L2</div>
+        <div class="cert-desc">Chip com contato — nível de hardware e protocolo de aplicação</div>
+      </div>
+      <div class="cert-chip">
+        <div class="cert-badge">EMV CTLSS</div>
+        <div class="cert-version">L1</div>
+        <div class="cert-desc">Pagamento por aproximação — certificação de hardware sem contato</div>
+      </div>
+      <div class="cert-chip">
+        <div class="cert-badge">Visa</div>
+        <div class="cert-version">payWave</div>
+        <div class="cert-desc">Aprovação oficial para transações por aproximação da bandeira Visa</div>
+      </div>
+      <div class="cert-chip">
+        <div class="cert-badge">Mastercard</div>
+        <div class="cert-version">PayPass</div>
+        <div class="cert-desc">Aprovação oficial para transações por aproximação da Mastercard</div>
+      </div>
+      <div class="cert-chip">
+        <div class="cert-badge">Amex</div>
+        <div class="cert-version">ExpressPay</div>
+        <div class="cert-desc">Certificação para pagamentos por aproximação American Express</div>
+      </div>
+      <div class="cert-chip">
+        <div class="cert-badge">Discover</div>
+        <div class="cert-version">D-PAS</div>
+        <div class="cert-desc">Discover PrivateLabel Application Specification — pagamentos sem contato</div>
+      </div>
+      <div class="cert-chip">
+        <div class="cert-badge">ABECS</div>
+        <div class="cert-version">Certificado</div>
+        <div class="cert-desc">Associação Brasileira das Empresas de Cartões — conformidade nacional</div>
+      </div>
+    </div>
+    <div class="cert-footer reveal">
+      <strong>Por que isso importa para o SplitHub:</strong> A infraestrutura de hardware da Positivo já opera com os níveis de segurança exigidos pelas maiores bandeiras do mundo. O SplitHub é construído sobre essa mesma base — com criptografia AES-256, isolamento de dados por CNPJ e rastreabilidade completa de cada transação.
+    </div>
   </div>
 </section>
 
